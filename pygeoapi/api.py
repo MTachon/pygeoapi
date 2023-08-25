@@ -909,11 +909,6 @@ class API:
             collection_data = get_provider_default(v['providers'])
             collection_data_type = collection_data['type']
 
-            collection_data_format = None
-
-            if 'format' in collection_data:
-                collection_data_format = collection_data['format']
-
             collection = {
                 'id': k,
                 'title': l10n.translate(v['title'], request.locale),
@@ -1098,16 +1093,9 @@ class API:
                 collection['links'].append({
                     'type': 'application/prs.coverage+json',
                     'rel': f'{OGC_RELTYPES_BASE}/coverage',
-                    'title': 'Coverage data',
+                    'title': 'Coverage data as CoverageJSON',
                     'href': f'{self.get_collections_url()}/{k}/coverage?f={F_JSON}'  # noqa
                 })
-                if collection_data_format is not None:
-                    collection['links'].append({
-                        'type': collection_data_format['mimetype'],
-                        'rel': f'{OGC_RELTYPES_BASE}/coverage',
-                        'title': f"Coverage data as {collection_data_format['name']}",  # noqa
-                        'href': f"{self.get_collections_url()}/{k}/coverage?f={collection_data_format['name']}"  # noqa
-                    })
                 if dataset is not None:
                     LOGGER.debug('Creating extended coverage metadata')
                     try:
@@ -1124,6 +1112,15 @@ class API:
                     except ProviderTypeError:
                         pass
                     else:
+                        for f in p.supported_output_formats:
+                            collection['links'].append(
+                                {
+                                 'type': p.get_format_mimetype(f),
+                                 'rel': f'{OGC_RELTYPES_BASE}/coverage',
+                                 'title': f'Coverage data as {f}',
+                                 'href': f'{self.get_collections_url()}/{k}/coverage?f={f}'  # noqa
+                                 }
+                            )
                         collection['crs'] = [p.crs]
                         collection['domainset'] = p.get_coverage_domainset()
                         collection['rangetype'] = p.get_coverage_rangetype()
@@ -2419,7 +2416,6 @@ class API:
 
         query_args = {}
         format_ = F_JSON
-
         # Force response content type and language (en-US only) headers
         headers = request.get_response_headers(SYSTEM_LOCALE,
                                                FORMAT_TYPES[F_JSON],
@@ -2543,19 +2539,16 @@ class API:
                 HTTPStatus.INTERNAL_SERVER_ERROR, headers, format_,
                 'NoApplicableCode', msg)
 
-        mt = collection_def['format']['name']
-        if format_ == mt:  # native format
-            if p.filename is not None:
-                cd = f'attachment; filename="{p.filename}"'
-                headers['Content-Disposition'] = cd
-
-            headers['Content-Type'] = collection_def['format']['mimetype']
-            return headers, HTTPStatus.OK, data
-        elif format_ == F_JSON:
+        if format_ == F_JSON:
             headers['Content-Type'] = 'application/prs.coverage+json'
             return headers, HTTPStatus.OK, to_json(data, self.pretty_print)
-        else:
-            return self.get_format_exception(request)
+
+        if p.filename is not None:
+            cd = f'attachment; filename="{p.filename}"'
+            headers['Content-Disposition'] = cd
+
+        headers['Content-Type'] = p.get_format_mimetype(format_)
+        return headers, HTTPStatus.OK, data
 
     @gzip
     @pre_process

@@ -28,9 +28,12 @@
 # =================================================================
 
 import pytest
+import pyproj
+from rasterio.io import MemoryFile
 
+from pygeoapi.provider.base import ProviderInvalidQueryError
 from pygeoapi.provider.rasterio_ import RasterioProvider
-
+from pygeoapi.util import get_transform_from_crs
 from .util import get_test_file_path
 
 path = get_test_file_path(
@@ -98,10 +101,61 @@ def test_query_bbox_reprojection(config):
     )
     p = RasterioProvider(config)
 
-    data = p.query(bbox=[-79, 45, -75, 49])
+    bbox_crs_epsg = 4326
+    bbox = [-79, 45, -75, 49]
+    xmin, ymin, xmax, ymax = bbox
+    data = p.query(bbox=bbox, bbox_crs=bbox_crs_epsg)
+    storage_crs = p._data.crs
+    transform_func = get_transform_from_crs(
+        pyproj.CRS.from_epsg(bbox_crs_epsg),
+        storage_crs,
+        geom_objects=False,
+        always_xy=True,
+    )
+    x_start, y_stop = transform_func(xmin, ymin)
+    x_stop, y_start = transform_func(xmax, ymax)
 
     assert isinstance(data, dict)
-    assert data['domain']['axes']['x']['start'] == -79.0
-    assert data['domain']['axes']['x']['stop'] == -75.0
-    assert data['domain']['axes']['y']['start'] == 49.0
-    assert data['domain']['axes']['y']['stop'] == 45.0
+
+    assert data['domain']['axes']['x']['start'] == x_start
+    assert data['domain']['axes']['x']['stop'] == x_stop
+    assert data['domain']['axes']['y']['start'] == y_start
+    assert data['domain']['axes']['y']['stop'] == y_stop
+
+
+def test_query_output_formats(config):
+    """Test support for multiple output formats.
+    """
+    config['storage_format'] = config['format']
+    config['storage_format']['valid_output_format'] = True
+    config['storage_format']['options'] = config['options']
+    del config['options']
+    config['format'] = [{'name': 'GTiff', 'mimetype': 'image/tiff'}]
+    p = RasterioProvider(config)
+
+    # Query coverage dataset in two different formats (native and another
+    # supported output format)
+    data_grib = p.query(format_='GRIB')
+    data_gtiff = p.query(format_='GTiff')
+
+    # Check that output data are returned in the right format and that the
+    # dataset values are identical for both queries
+    with MemoryFile(data_grib) as memfile_grib:
+        with memfile_grib.open() as dataset_grib:
+            data_arr_grib = dataset_grib.read()
+
+            assert dataset_grib.driver == 'GRIB'
+
+    with MemoryFile(data_gtiff) as memfile_gtiff:
+        with memfile_gtiff.open() as dataset_gtiff:
+            data_arr_gtiff = dataset_gtiff.read()
+
+            assert dataset_gtiff.driver == 'GTiff'
+
+    assert (data_arr_grib == data_arr_gtiff).all()
+
+    # Check that using unsupported formats as query parameter throws an error
+    unsupported_formats = ['PNG', 'foo']
+    for f in unsupported_formats:
+        with pytest.raises(ProviderInvalidQueryError):
+            p.query(format_=f)
