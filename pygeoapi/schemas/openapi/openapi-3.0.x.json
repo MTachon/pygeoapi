@@ -561,16 +561,26 @@
                   "items": {
                     "allOf": [
                       {
-                        "type": {
-                          "type": "string",
-                          "enum": ["number"]
-                        }
+                        "type": "object",
+                        "required": ["type"],
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": ["number"]
+                          }
+			},
+                        "additionalProperties": false
                       },
                       {
-                        "type": {
-                          "type": "string",
-                          "enum": ["string"]
-                        }
+                        "type": "object",
+                        "required": ["type"],
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": ["string"]
+                          }
+			},
+                        "additionalProperties": false
                       }
                     ]
                   }
