@@ -538,6 +538,80 @@
         },
         "xml": {
           "$ref": "#/definitions/XML"
+        },
+        "id": {
+          "type": "object",
+	  "properties": {
+            "oneOf": [
+              {
+                "type": {
+                  "type": "string",
+                  "enum": ["number", "string"]
+		}
+	      },
+              {
+                "oneOf": {
+                  "type": "array",
+                  "items": {
+                    "allOf": [
+                      {
+                        "type": "object",
+                        "required": ["type"],
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": ["number"]
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "required": ["type"],
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": ["string"]
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                }
+	      }
+            ]
+          }
+        },
+        "bbox": {
+          "type": "object",
+          "required": ["type", "minItems", "items"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["array"]
+            },
+            "minItems": {
+              "type": "integer",
+              "minimum": 4
+            },
+            "maxItems": {
+              "type": "integer",
+              "minimum": 4
+            },
+            "items": {
+              "type": "object",
+              "required": ["type"],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["number"]
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
         }
       },
       "patternProperties": {
