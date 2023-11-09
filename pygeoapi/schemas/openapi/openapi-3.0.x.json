@@ -540,16 +540,16 @@
           "$ref": "#/definitions/XML"
         },
         "id": {
-          "type": "object",
-	  "properties": {
-            "oneOf": [
-              {
-                "type": {
-                  "type": "string",
-                  "enum": ["number", "string"]
-		}
-	      },
-              {
+          "oneOf": [
+            {
+              "type": {
+                "type": "string",
+                "enum": ["number", "string"]
+              }
+            },
+            {
+              "type": "object",
+              "properties": {
                 "oneOf": {
                   "type": "array",
                   "items": {
@@ -569,9 +569,9 @@
                     ]
                   }
                 }
-	      }
-            ]
-          }
+              }
+            }
+          ]
         },
         "bbox": {
           "type": "object",
