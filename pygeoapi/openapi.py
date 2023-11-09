@@ -47,7 +47,8 @@ from pygeoapi import l10n
 from pygeoapi.models.openapi import OAPIFormat
 from pygeoapi.plugin import load_plugin
 from pygeoapi.process.manager.base import get_manager
-from pygeoapi.provider.base import ProviderTypeError, SchemaType
+from pygeoapi.provider.base import ProviderTypeError
+from pygeoapi.schemas import SchemaType
 from pygeoapi.util import (filter_dict_by_key_value, get_provider_by_type,
                            filter_providers_by_type, to_json, yaml_load,
                            get_api_rules, get_base_url)
@@ -727,7 +728,7 @@ def get_oas_30(cfg):
             }
 
             try:
-                schema_ref = p.get_schema()
+                schema_ref = p.get_schema(SchemaType.item)
                 paths[f'{collection_name_path}/items/{{featureId}}']['get']['responses']['200'] = {  # noqa
                     'content': {
                         schema_ref[0]: {
@@ -739,9 +740,42 @@ def get_oas_30(cfg):
                 LOGGER.debug(err)
 
             if p.editable:
-                LOGGER.debug('Provider is editable; adding put/delete')
+                LOGGER.debug('Provider is editable; adding put/patch/delete')
                 put_path = f'{collection_name_path}/items/{{featureId}}'  # noqa
                 paths[put_path]['put'] = {  # noqa
+                    'summary': f'Replace {title} items',
+                    'description': desc,
+                    'tags': [name],
+                    'operationId': f'replace{name.capitalize()}Features',
+                    'parameters': [
+                        {'$ref': f"{OPENAPI_YAML['oapif-1']}#/components/parameters/featureId"}  # noqa
+                    ],
+                    'requestBody': {
+                        'description': 'Replaces item in collection',
+                        'content': {
+                            'application/geo+json': {
+                                'schema': {}
+                            }
+                        },
+                        'required': True
+                    },
+                    'responses': {
+                        '204': {'$ref': '#/components/responses/204'},
+                        '400': {'$ref': f"{OPENAPI_YAML['oapif-1']}#/components/responses/InvalidParameter"},  # noqa
+                        '404': {'$ref': f"{OPENAPI_YAML['oapif-1']}#/components/responses/NotFound"},  # noqa
+                        '500': {'$ref': f"{OPENAPI_YAML['oapif-1']}#/components/responses/ServerError"}  # noqa
+                    }
+                }
+                try:
+                    schema_ref = p.get_schema(SchemaType.replace)
+                    paths[put_path]['put']['requestBody']['content'][schema_ref[0]] = {  # noqa
+                        'schema': schema_ref[1]
+                    }
+                except Exception as err:
+                    LOGGER.debug(err)
+
+                patch_path = f'{collection_name_path}/items/{{featureId}}'  # noqa
+                paths[patch_path]['patch'] = {  # noqa
                     'summary': f'Update {title} items',
                     'description': desc,
                     'tags': [name],
@@ -761,13 +795,14 @@ def get_oas_30(cfg):
                     'responses': {
                         '204': {'$ref': '#/components/responses/204'},
                         '400': {'$ref': f"{OPENAPI_YAML['oapif-1']}#/components/responses/InvalidParameter"},  # noqa
+                        '404': {'$ref': f"{OPENAPI_YAML['oapif-1']}#/components/responses/NotFound"},  # noqa
                         '500': {'$ref': f"{OPENAPI_YAML['oapif-1']}#/components/responses/ServerError"}  # noqa
                     }
                 }
 
                 try:
-                    schema_ref = p.get_schema(SchemaType.replace)
-                    paths[put_path]['put']['requestBody']['content'][schema_ref[0]] = {  # noqa
+                    schema_ref = p.get_schema(SchemaType.update)
+                    paths[patch_path]['put']['requestBody']['content'][schema_ref[0]] = {  # noqa
                         'schema': schema_ref[1]
                     }
                 except Exception as err:
@@ -784,6 +819,7 @@ def get_oas_30(cfg):
                     'responses': {
                         '200': {'description': 'Successful delete'},
                         '400': {'$ref': f"{OPENAPI_YAML['oapif-1']}#/components/responses/InvalidParameter"},  # noqa
+                        '404': {'$ref': f"{OPENAPI_YAML['oapif-1']}#/components/responses/NotFound"},  # noqa
                         '500': {'$ref': f"{OPENAPI_YAML['oapif-1']}#/components/responses/ServerError"}  # noqa
                     }
                 }
