@@ -542,13 +542,19 @@
         "id": {
           "oneOf": [
             {
-              "type": {
-                "type": "string",
-                "enum": ["number", "string"]
-              }
+              "type": "object",
+              "required": ["type"],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["number", "string"]
+                }
+              },
+              "additionalProperties": false
             },
             {
               "type": "object",
+              "required": ["oneOf"],
               "properties": {
                 "oneOf": {
                   "type": "array",
@@ -569,7 +575,8 @@
                     ]
                   }
                 }
-              }
+              },
+              "additionalProperties": false
             }
           ]
         },
