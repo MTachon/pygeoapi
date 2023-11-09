@@ -1,0 +1,65 @@
+{
+ "title": "my_feature",
+ "required": [
+  "type",
+  "properties",
+  "geometry"
+ ],
+ "properties": {
+  "geometry": {
+   "title": "GeoJSON Point",
+   "type": "object",
+   "required": [
+    "type",
+    "coordinates"
+   ],
+   "properties": {
+    "type": {
+     "type": "string",
+     "enum": [
+      "Point"
+     ]
+    },
+    "coordinates": {
+     "type": "array",
+     "minItems": 2,
+     "items": {
+      "type": "number"
+     }
+    },
+    "bbox": {
+     "type": "array",
+     "minItems": 4,
+     "items": {
+      "type": "number"
+     }
+    }
+   }
+  },
+  "bbox": {
+   "type": "array",
+   "minItems": 4,
+   "items": {
+    "type": "number"
+   }
+  },
+  "type": {
+   "type": "string",
+   "enum": [
+    "Feature"
+   ]
+  },
+  "id": {
+   "type": "integer"
+  },
+  "properties": {
+   "name": {
+    "type": "string"
+   },
+   "population_2022": {
+    "type": "integer"
+   }
+  }
+ },
+ "type": "object"
+}

@@ -27,18 +27,17 @@
 #
 # =================================================================
 
+
+from copy import deepcopy
 import json
 import logging
-from enum import Enum
+
+from pygeoapi.schemas import (
+    get_schema_path, remove_required_from_schema, SchemaType,
+)
+
 
 LOGGER = logging.getLogger(__name__)
-
-
-class SchemaType(Enum):
-    item = 'item'
-    create = 'create'
-    update = 'update'
-    replace = 'replace'
 
 
 class BaseProvider:
@@ -61,6 +60,12 @@ class BaseProvider:
             raise RuntimeError('name/type/data are required')
 
         self.editable = provider_def.get('editable', False)
+        schema_path = provider_def.get('schema')
+        if schema_path:
+            with open(schema_path) as f:
+                self.schema = json.load(f)
+        else:
+            self.schema = None
         self.options = provider_def.get('options')
         self.id_field = provider_def.get('id_field')
         self.uri_field = provider_def.get('uri_field')
@@ -98,8 +103,19 @@ class BaseProvider:
         :returns: tuple pair of `str` of media type and `dict` of schema
                   (i.e. JSON Schema)
         """
+        if not self.schema:
+            if self.type == 'feature':
+                schema_path = get_schema_path('featureGeoJSON.json')
+                with open(schema_path, mode='r', encoding='utf8') as f:
+                    self.schema = json.load(f)
+            else:
+                raise NotImplementedError()
 
-        raise NotImplementedError()
+        json_schema = deepcopy(self.schema)
+        if schema_type == SchemaType.update:
+            remove_required_from_schema(json_schema)
+
+        return ('application/geo+json', json_schema)
 
     def get_data_path(self, baseurl, urlpath, dirpath):
         """

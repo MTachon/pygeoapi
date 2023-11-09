@@ -450,7 +450,7 @@ properties:
                                           description: optional options key value pairs to pass to provider (i.e. GDAL creation)
                                           oneOf:
                                               - $ref: '#/definitions/provider/properties/PostgreSQL/properties/config/properties/options'
-                                            #   - type: object 
+                                            #   - type: object
                                             #     patternProperties:
                                             #         "^[a-z]{2}$":
                                             #             allOf:
@@ -491,6 +491,9 @@ properties:
                                               year in the Gregorian calendar.
                                           example:
                                               2017-03-25 in the Gregorian calendar is epoch 2017.23
+                                      schema:
+                                          type: string
+                                          description: the filesystem path to JSON schema of the data to publish
                                   required:
                                       - type
                                       - name

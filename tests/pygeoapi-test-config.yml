@@ -184,6 +184,7 @@ resources:
                 - http://www.opengis.net/def/crs/EPSG/0/4258
                 - http://www.opengis.net/def/crs/EPSG/0/25833
               storage_crs: http://www.opengis.net/def/crs/EPSG/0/25833
+              schema: tests/data/norwegian_urban_areas_schema.json
 
     cmip5:
         type: collection
@@ -343,7 +344,7 @@ resources:
                   s3:
                     anon: true
                     requester_pays: false
-    
+
     objects:
         type: collection
         title: GeoJSON objects
