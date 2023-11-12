@@ -392,8 +392,7 @@
           "minimum": 0,
           "default": 0
         },
-        "required": {
-          "type": "array",
+        "required": {          "type": "array",
           "items": {
             "type": "string"
           },
@@ -680,7 +679,10 @@
           "properties": {
             "type": "string",
             "enum": ["number", "array"]
-          }
+          },
+          "additionalProperties": {
+            "$ref": "#/definitions/Schema"
+	    }
         },
         "minItems": {
           "type": "integer",
