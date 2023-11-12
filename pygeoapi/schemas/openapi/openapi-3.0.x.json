@@ -728,19 +728,33 @@
     },
     "GeoJSONGeometry": {
       "type": "object",
-	"required": ["type", "required"],
+      "required": ["type", "required"],
       "properties": {
         "type": {
-          "type": "string",
-          "enum": [
-            "Point",
-            "LineString",
-            "Polygon",
-            "MultiPoint",
-            "MultiLineString",
-            "MultiPolygon",
-            "GeometryCollection"
-          ]
+          "type": "object",
+          "required": ["type", "enum"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["string"]
+            },
+            "enum": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "Point",
+                  "LineString",
+                  "Polygon",
+                  "MultiPoint",
+                  "MultiLineString",
+                  "MultiPolygon",
+                  "GeometryCollection"
+                 ]
+              }
+            }
+          },
+          "additionalProperties": false
         },
         "required": {
           "type": "array",
