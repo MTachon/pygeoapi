@@ -677,12 +677,11 @@
           "type": "object",
           "required": ["type"],
           "properties": {
-            "type": "string",
-            "enum": ["number", "array"]
-          },
-          "additionalProperties": {
-            "$ref": "#/definitions/Schema"
-	    }
+            "type": {
+              "type": "string",
+              "enum": ["number", "array"]
+            }
+          }
         },
         "minItems": {
           "type": "integer",
