@@ -728,79 +728,92 @@
     },
     "GeoJSONGeometry": {
       "type": "object",
-      "required": ["type", "required"],
+      "required": ["type", "required", "properties"],
       "properties": {
         "type": {
+          "type": "string",
+          "enum": ["object"]
+        },
+        "properties": {
           "type": "object",
-          "required": ["type", "enum"],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": ["string"]
+          "required": ["type"],
+	  "properties": {
+	    "type": {
+	      "type": "object",
+              "required": ["type", "enum"],
+	      "properties": {
+		"type": {
+		  "type": "string",
+		  "enum": ["string"]
+		},
+		"enum": {
+		  "type": "array",
+		  "items": {
+		    "type": "string",
+		    "enum": [
+		      "Point",
+		      "LineString",
+		      "Polygon",
+		      "MultiPoint",
+		      "MultiLineString",
+		      "MultiPolygon",
+		      "GeometryCollection"
+		    ]
+		  }
+		}
+	      },
+	      "additionalProperties": false
+	    },
+            "coordinates": {
+	      "$ref": "#/definitions/GeoJSONCoordinates"
             },
-            "enum": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "enum": [
-                  "Point",
-                  "LineString",
-                  "Polygon",
-                  "MultiPoint",
-                  "MultiLineString",
-                  "MultiPolygon",
-                  "GeometryCollection"
-                 ]
-              }
-            }
-          },
-          "additionalProperties": false
-        },
-        "required": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "enum": [
-              "type",
-              "coordinates",
-              "geometries"
-            ]
-          }
-        },
-        "coordinates": {
-          "$ref": "#/definitions/GeoJSONCoordinates"
-        },
-        "bbox": {
-          "$ref": "#/definitions/Bbox"
-        },
-        "geometries": {
-          "type": "object",
-          "required": ["type", "items"],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": ["array"]
+            "bbox": {
+	      "$ref": "#/definitions/Bbox"
             },
-            "items": {
+            "geometries": {
               "type": "object",
-              "required": ["oneOf"],
+              "required": ["type", "items"],
               "properties": {
-                "oneOf": {
-                  "type": "array",
-                    "items": {
-                      "anyOf": [
-                        {
-                          "$ref": "#/definitions/GeoJSONGeometry"
-                        }
-                      ]
+		"type": {
+		  "type": "string",
+		  "enum": ["array"]
+		},
+		"items": {
+		  "type": "object",
+		  "required": ["oneOf"],
+		  "properties": {
+                    "oneOf": {
+                      "type": "array",
+                      "items": {
+			"anyOf": [
+                          {
+                            "$ref": "#/definitions/GeoJSONGeometry"
+                          }
+			]
+                      }
                     }
-                }
+		  },
+		  "additionalProperties": false
+		}
               },
               "additionalProperties": false
             }
-          },
-          "additionalProperties": false
-        }
+	  }
+	},
+        "required": {
+	  "type": "array",
+	  "items": {
+	    "type": "string",
+	    "enum": [
+	      "type",
+	      "coordinates",
+	      "geometries"
+	    ]
+	  }
+        },
+	"title": {
+	  "type": "string"
+	}
       },
       "additionalProperties": false
     },
