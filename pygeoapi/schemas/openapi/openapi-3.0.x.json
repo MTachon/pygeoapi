@@ -728,7 +728,7 @@
     },
     "GeoJSONGeometry": {
       "type": "object",
-      "required": ["type"],
+	"required": ["type", "required"],
       "properties": {
         "type": {
           "type": "string",
@@ -741,6 +741,17 @@
             "MultiPolygon",
             "GeometryCollection"
           ]
+        },
+        "required": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "type",
+              "coordinates",
+              "geometries"
+            ]
+          }
         },
         "coordinates": {
           "$ref": "#/definitions/GeoJSONCoordinates"
