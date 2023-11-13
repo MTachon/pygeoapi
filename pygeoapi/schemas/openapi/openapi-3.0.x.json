@@ -558,7 +558,7 @@
                 "oneOf": {
                   "type": "array",
                   "items": {
-                    "allOf": [
+                    "oneOf": [
                       {
                         "type": "object",
                         "required": ["type"],
@@ -705,7 +705,7 @@
         "minItems": {
           "type": "integer",
           "minimum": 4,
-            "maximum": 6
+          "maximum": 6
         },
         "maxItems": {
           "type": "integer",
