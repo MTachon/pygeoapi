@@ -618,7 +618,7 @@
                 "oneOf": {
                   "type": "array",
                   "items": {
-                    "allOf": [
+                    "oneOf": [
                       {
                         "$ref": "#/definitions/GeoJSONGeometry"
                       },
