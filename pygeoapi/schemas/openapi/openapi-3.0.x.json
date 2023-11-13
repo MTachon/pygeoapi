@@ -414,7 +414,8 @@
             "integer",
             "number",
             "object",
-            "string"
+            "string",
+            "null"
           ]
         },
         "not": {
@@ -785,7 +786,7 @@
                     "oneOf": {
                       "type": "array",
                       "items": {
-			"anyOf": [
+			"oneOf": [
                           {
                             "$ref": "#/definitions/GeoJSONGeometry"
                           }
