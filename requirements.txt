@@ -7,7 +7,7 @@ jsonschema
 pydantic<2.0
 pygeofilter
 pygeoif
-pyproj
+pyproj==3.7.0
 python-dateutil
 pytz
 PyYAML
